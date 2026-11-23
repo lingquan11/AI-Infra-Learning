@@ -4,20 +4,26 @@ From CUDA kernels to an LLM inference engine on a single RTX 5060 Ti: hand-writt
 
 在一张 RTX 5060 Ti 上，从 CUDA 算子一路做到 LLM 推理引擎：每一步都由我手写实现，用 profiler 验收，可以一键复现。
 
-## 我怎么开始学习
-1. 打开 [start/STATE.md](start/STATE.md)：当前战役、当前任务、下一步
-2. 打开它指向的任务卡
-3. 把 [start/prompts/tutor.md](start/prompts/tutor.md) + STATE + 任务卡贴给导师 AI，开始学习
-4. 学完用 [start/prompts/archiver.md](start/prompts/archiver.md) 归档；任务做完用 `examiner.md` 考核
+## 学习进度
+<!-- progress:start -->
+```
+当前战役 C1 CUDA SGEMM 阶梯优化
+  ░░░░░░░░░░░░░░░░░░░░   0%  0/8 个必做任务通过 · 已用 0h / 计划 39h · 截止 2027-01-10
+整条路线 C0 → C4
+  ░░░░░░░░░░░░░░░░░░░░   0%  0/5 个战役完成
+当前任务 C1-T01 环境打通（2026-12-07 开始，等 C0 收尾） · 最近学习 2026-11-23
+```
+<!-- progress:end -->
 
-路线见 [start/ROADMAP.md](start/ROADMAP.md)（C1 SGEMM → C2 Triton → C3 FlashAttention-2 → C4 nano-vllm），规则见 [start/RULES.md](start/RULES.md)。
+## 我怎么开始学习
+在 Codex 中打开本仓库，说"开始学习"；学完说"结束"，Codex 自动归档并更新进度。流程见 [AGENTS.md](AGENTS.md)；路线见 [start/ROADMAP.md](start/ROADMAP.md)（C1 SGEMM → C2 Triton → C3 FlashAttention-2 → C4 nano-vllm）。
 
 ## 学习过程
 [journey/](journey/README.md)：时间线、每次学习的日志、笔记、考核记录。
 
 ## 学习成果
-| 做了什么 | 结论 | 在哪里 |
-|---|---|---|
-| — | C1 从 2026-12-07 开始，完成后在这里放 SGEMM 阶梯表 | [results/](results/README.md) |
+<!-- results:start -->
+暂无成果：C1 CUDA SGEMM 从 2026-12-07 开始，第一个任务通过后这里换成结论表。
+<!-- results:end -->
 
 相关仓库：[cpp-matmul-performance](https://github.com/lingquan11/cpp-matmul-performance)（前置 C0：CPU 矩阵乘法）· [IC-Design-Learning](https://github.com/lingquan11/IC-Design-Learning)（数字 IC 路线）

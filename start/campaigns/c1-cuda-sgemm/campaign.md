@@ -3,7 +3,6 @@
 - **周期**：2026-12-07 → 2027-01-10（截止日不延期）
 - **预算**：每周 8–10h，合计 40–50h；必做线计划 39h。1 月考试周的预算按一半计，超时就按砍线顺序处理
 - **唯一交付物**：`results/sgemm/`。一张表展示 v1–v5 在 4096³ FP32 下的 GFLOPS 和占 cuBLAS 的百分比，附 ncu 剖析报告
-- **检查点**：2026-12-20（复盘）、2027-01-03（复盘）、2027-01-10（收尾）
 - **前置**：C0（cpp-matmul v1.0）已收尾
 
 ## 统一约定（所有任务共用）
@@ -14,7 +13,7 @@
 - **编译**：CMake，`CMAKE_CUDA_ARCHITECTURES 120`，Release
 - **结果**：每个版本的 CSV 写入 `results/sgemm/experiments/<版本>/data/`，CSV 中记录 GPU 型号、驱动版本、CUDA 版本和 git 提交号
 
-## 必做线
+## 必做线（状态：未开始 / 进行中 / 待考官 / 通过）
 | ID | 任务 | 计划用时 | 验收要点（展开任务卡时不得弱于此） | 状态 |
 |---|---|---:|---|---|
 | C1-T01 | 环境打通 + Vector Add + 第一次 ncu | 3h | 见 [t01-env-setup.md](t01-env-setup.md) | 未开始 |
@@ -24,7 +23,7 @@
 | C1-T05 | v3 共享内存分块 | 5h | 通过校验；4096 下比 v2 快（如果没有更快，就用 ncu 数据说明原因）；闭卷：两处 `__syncthreads()` 分别在防止什么 | 未开始 |
 | C1-T06 | v4 1D Blocktiling（每个线程计算多个结果） | 5h | 通过校验；记录每线程结果数 TM、每线程寄存器数（用 `nvcc --resource-usage` 或 ncu）；闭卷：算术强度是怎样提高的，用公式说明 | 未开始 |
 | C1-T07 | v5 2D Blocktiling（寄存器级分块） | 6h | 通过校验；4096 下 **≥ cuBLAS 的 50%**，未达到就在 C1-T08 中用 ncu 数据解释差距；记录寄存器数和占用率 | 未开始 |
-| C1-T08 | ncu 剖析 + 报告 + 收尾 | 5h | 用 `ncu --set full` 采集 v1、v3、v5，报告文件入库（太大就入库截图）；`results/sgemm/README.md` 中解释 Compute SOL、Memory SOL、Warp Stall Reasons 的变化；`results/sgemm/summary.md` 不超过 800 字；打 tag `c1-v1.0`；用 reviewer.md 复盘 | 未开始 |
+| C1-T08 | ncu 剖析 + 报告 + 收尾 | 5h | 用 `ncu --set full` 采集 v1、v3、v5，报告文件入库（太大就入库截图）；`results/sgemm/README.md` 中解释 Compute SOL、Memory SOL、Warp Stall Reasons 的变化；`results/sgemm/summary.md` 不超过 800 字；打 tag `c1-v1.0` | 未开始 |
 
 C1-T03 到 C1-T08 的任务卡在前一张通过后再展开，文件名按内容命名（如 `t03-sgemm-harness.md`），见 [RULES.md](../../RULES.md) §2。
 

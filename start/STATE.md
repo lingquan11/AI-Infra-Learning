@@ -2,8 +2,7 @@
 
 - 更新：2026-11-23
 - 战役：C1 CUDA SGEMM 阶梯优化（2026-12-07 → 2027-01-10）→ [campaigns/c1-cuda-sgemm/campaign.md](campaigns/c1-cuda-sgemm/campaign.md)
-- 当前任务：C1-T01 环境打通 → [t01-env-setup.md](campaigns/c1-cuda-sgemm/t01-env-setup.md)
-- 任务状态：未开始（等 C0 在 cpp-matmul 仓库收尾，2026-12-06）
+- 当前任务：C1-T01 环境打通（2026-12-07 开始，等 C0 收尾）→ [t01-env-setup.md](campaigns/c1-cuda-sgemm/t01-env-setup.md)
 - 本战役已用：0h / 预算 40–50h
 
 ## 上次停在哪
