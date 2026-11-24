@@ -12,12 +12,19 @@ From CUDA kernels to an LLM inference engine on a single RTX 5060 Ti: hand-writt
 整条路线 C0 → C5
   ░░░░░░░░░░░░░░░░░░░░   0%  0/6 个战役完成
 环境准备 0/2 就绪（与 Muse 协作，不计入学习进度）· 已用 0h
-当前任务 C1-T01 起步：指针确认 + GPU 心智模型（2026-12-07 开始，等 C0 收尾） · 最近学习 2026-11-23
+当前任务 C1-T01 起步：指针确认 + GPU 心智模型（2026-12-07 开始，等 C0 收尾）
+最近学习 2026-11-23
 ```
 <!-- progress:end -->
 
 ## 我怎么开始学习
-在 Codex 中打开本仓库，说"开始学习"；学完说"结束"，Codex 自动归档并更新进度。流程见 [AGENTS.md](AGENTS.md)；路线见 [start/ROADMAP.md](start/ROADMAP.md)（C1 CUDA → C2 Triton → C3 FlashAttention-2 → C4 推理引擎 → C5 分布式训练），每个任务的阅读材料见 [start/reading-map.md](start/reading-map.md)。
+| 我想 | 对谁说 |
+|---|---|
+| 学习（结束时自动归档、更新进度） | GPT / Codex："开始学习" … "结束" |
+| 考核一个做完的任务 | Gemini："考核 <任务ID>" |
+| 装环境、配工具 | Muse："准备环境" |
+
+路线见 [start/ROADMAP.md](start/ROADMAP.md)（C1 CUDA → C2 Triton → C3 FA2 → C4 推理引擎 → C5 分布式），导读见 [reading-map.md](start/reading-map.md)。
 
 ## 学习过程
 [journey/](journey/README.md)：时间线、每次学习的日志、笔记、考核记录。
