@@ -1,41 +1,34 @@
-# C1-T01 起步：诊断 + WSL / Linux + CMake
+# C1-T01 起步：指针快速确认 + GPU 硬件与编程模型
 
-- **线**：必做 | **计划用时**：2h（诊断全部满分时约 0.5h） | **前置**：C0 收尾
-- **一句话目标**：补齐写 CUDA 之前的两样工具（Linux 和 CMake），并确认指针已经能**写**出来：`cudaMalloc` 和 kernel 参数都是指针
+- **线**：必做 | **计划用时**：1.5h | **前置**：C0 收尾 | **依赖环境**：无（不需要装任何东西，可以和 C1-S01 同时进行）
+- **一句话目标**：确认指针能**写**出来（`cudaMalloc` 和 kernel 参数都是指针）；在写第一行 CUDA 之前，先建立"GPU 和 CPU 有什么不同"的心智模型
 
-## 第一步：诊断（30 分钟，不看资料、不问 AI）
+## 第一步：指针快速确认（15 分钟，不看资料、不问 AI）
 在 `journey/exercises/c1-start/diagnosis.md` 中作答，每题按 0 / 1 / 2 分自评（0 = 不会，1 = 能写但不确定，2 = 能写也能解释）：
 1. `int* p = new int[n];` 之后，`p[3]`、`*(p + 3)`、`&p[3]` 分别是什么？用完之后要做什么？
-2. 一个 n×n 矩阵按行主序存放在一维数组里，元素 (i, j) 的下标是多少？怎样把它交给一个接收 `float*` 的函数？
-3. 在 Linux 终端里：进入目录、列出文件、创建目录、查看文件内容、搜索文件中的文字，分别用什么命令？
-4. 用 `g++` 编译一个 `.cpp` 并运行，命令是什么？加上 `-O2` 和 `-g` 分别有什么作用？
-5. 一个最小的 `CMakeLists.txt` 至少要写哪几行？`cmake -B build` 和 `cmake --build build` 分别做什么？
+2. n×n 矩阵按行主序存放在一维数组里，元素 (i, j) 的下标是多少？怎样把 `std::vector<float>` 交给一个接收 `float*` 的函数？
 
-**得 2 分的题，跳过下面对应的补课部分。** 你已有指针基础，第 1、2 题预计直接满分，重点在第 3–5 题。
+两题都得 2 分就直接进入第二步；否则读导读 R-C1-01，写一个 `journey/exercises/c1-start/matrix.cpp`（用 `new` 分配 n×n 矩阵，按 `i*n + j` 存放，与 C0 的 ikj 结果对比），再重新自评。
 
-## 第二步：只补得分 < 2 的部分
-| 题号 | 补课材料（一手） | 练习 |
-|---|---|---|
-| 1、2 | [learncpp.com](https://www.learncpp.com/) 中 Pointers、Dynamic memory allocation、`std::vector` 的章节 | 【me】`journey/exercises/c1-start/matrix.cpp`：用 `new` 分配 n×n 矩阵，按 `i*n + j` 存放，写一个 `void matmul(const float* A, const float* B, float* C, int n)`，与 C0 的 ikj 结果对比；最后改用 `std::vector<float>` 加 `.data()` 再写一遍 |
-| 3 | [MIT Missing Semester：The Shell](https://missing.csail.mit.edu/2020/course-shell/) | 在 WSL 中完成该讲的练习，把用到的命令记进 `notes.md` |
-| 4、5 | [CMake 官方教程](https://cmake.org/cmake/help/latest/guide/tutorial/index.html) 第 1 步 | 【me】给 `matrix.cpp` 写 `CMakeLists.txt`，在 WSL 中构建运行 |
-
-（WSL2 和 Ubuntu 的安装放在 C1-T02 第 2 步；如果第 3 题要在 Linux 中练习，就先做那一步。）
+## 第二步：GPU 心智模型（约 75 分钟）
+1. 读导读 R-C1-02（GPU 硬件概论）和 R-C1-03（CUDA 编程模型与内存模型）。
+2. 【me】不看资料，在 `journey/notes/gpu-mental-model.md` 中写一张 CPU 与 GPU 的对照表（≤ 1 页），至少包括：核心与 SM、线程与 warp、缓存与显存层次（寄存器 / 共享内存 / L2 / 显存）、隐藏延迟的方式。用你在 C0 学到的 CPU 缓存知识做类比。
+3. 【me】手算：一个 grid 有 `gridDim.x = 4`、`blockDim.x = 256`，`blockIdx.x = 2` 中的 `threadIdx.x = 10` 对应的全局下标是多少？n = 1000 时一共启动了多少线程？需要几个线程什么都不做？
 
 ## 所有权
-- `[me]`：诊断作答、`matrix.cpp`、`CMakeLists.txt`
-- `[ai]`：可以写 `check.sh`（编译并用 AddressSanitizer 运行）
+- `[me]`：诊断作答、对照表、手算
+- `[ai]`：无
 
 ## 机器验收（开工前写死，AI 不得修改）
-- [ ] `diagnosis.md` 中 5 题都有作答和自评分
-- [ ] 第 1、2 题有低于 2 分的：在 WSL 中 `g++ -fsanitize=address -g matrix.cpp` 运行无内存错误，结果与 ikj 一致（n = 1、7、64）
-- [ ] 第 4、5 题有低于 2 分的：`cmake -B build && cmake --build build` 成功
-- [ ] 补课后重新自评，5 题都达到 2 分（达不到的写进 STATE 的"未解决的问题"，不阻塞 C1-T02）
+- [ ] `diagnosis.md` 中两题都有作答，自评都达到 2 分（达不到的写进 STATE 的"未解决的问题"）
+- [ ] `journey/notes/gpu-mental-model.md` 存在，对照表包含上面列出的 4 项
+- [ ] 手算题写在对照表的末尾
 
 ## 闭卷要点（考官据此出题）
-- 指针运算与数组下标的等价关系；悬空指针、内存泄漏分别怎么产生
-- 行主序下标公式；把 `std::vector` 交给接收裸指针的函数
-- 为什么 GPU 编程离不开指针（预告：`cudaMalloc` 返回的是设备内存的地址）
+- 指针运算与数组下标的等价关系；为什么 GPU 编程离不开指针
+- SM、warp、共享内存分别是什么；GPU 为什么用"更多线程"而不是"更大的缓存"来隐藏延迟
+- 全局下标的计算；为什么需要边界检查
+- 现场题：给出新的 gridDim / blockDim / n，算下标和空闲线程数
 
 ## 卡住时
-- 超过 3h：先保证第 3 题（Linux 命令）达到 2 分，CMake 在 C1-T04 搭工程框架时边用边学。
+- 超过 2.5h：对照表先写 3 项，剩下一项在 C1-T02 写完第一个 kernel 后补上。

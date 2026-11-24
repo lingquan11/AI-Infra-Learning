@@ -9,10 +9,10 @@
 ## C1 CUDA SGEMM（逐任务）
 | 编号 | 任务 | 时机 | 来源与章节 | 读完要回答 | 时长 |
 |---|---|---|---|---|---|
-| R-C1-01 | T01 | 卡住（第 1、2 题 < 2 分时） | [learncpp.com](https://www.learncpp.com/)：Pointers、Dynamic memory allocation | `new[]` 和 `delete[]` 必须配对的原因？指针 +1 移动了多少字节？ | 60m |
-| R-C1-02 | T01 | 卡住 | [Missing Semester：The Shell](https://missing.csail.mit.edu/2020/course-shell/) | 绝对路径和相对路径；管道 `\|` 做了什么？ | 45m |
-| R-C1-03 | T02 | 做前 | [Guide › 前置知识](https://caomaolufei.github.io/AIInfraGuide/prerequisites/) 第 5 章「GPU 硬件概论」+ 5.1 架构演进 | SM、warp、显存层次分别对应 CPU 的什么？为什么 GPU 用更多线程来隐藏延迟？ | 40m |
-| R-C1-04 | T02 | 做前 | [Guide › CUDA](https://caomaolufei.github.io/AIInfraGuide/cuda/) 1.2 编程模型、1.3 内存模型、1.4 向量加法 | grid / block / thread 怎样算出全局下标？host 和 device 内存怎样拷贝？ | 50m |
+| R-C1-01 | T01 | 卡住（指针题 < 2 分时） | [learncpp.com](https://www.learncpp.com/)：Pointers、Dynamic memory allocation | `new[]` 和 `delete[]` 必须配对的原因？指针 +1 移动了多少字节？ | 60m |
+| R-C1-02 | T01 | 做前 | [Guide › 前置知识](https://caomaolufei.github.io/AIInfraGuide/prerequisites/) 第 5 章「GPU 硬件概论」+ 5.1 架构演进 | SM、warp、显存层次分别对应 CPU 的什么？为什么 GPU 用更多线程来隐藏延迟？ | 40m |
+| R-C1-03 | T01 | 做前 | [Guide › CUDA](https://caomaolufei.github.io/AIInfraGuide/cuda/) 1.2 编程模型、1.3 内存模型 | grid / block / thread 怎样算出全局下标？寄存器、共享内存、显存各自的作用域？ | 40m |
+| R-C1-04 | T02 | 做前 | Guide › CUDA 1.4 向量加法 | host 和 device 内存怎样拷贝？kernel 启动后怎样检查错误？ | 20m |
 | R-C1-05 | T02 | 做后 | *PMPP* 第 2 章（Heterogeneous data parallel computing） | 与 Guide 对照：错误检查为什么要放在 kernel 启动之后？ | 40m |
 | R-C1-06 | T03 | 做前 | Guide › CUDA 2.1 warp、2.4 同步与原子操作 | `__syncthreads()` 同步的范围是什么？atomicAdd 为什么慢？ | 40m |
 | R-C1-07 | T03 | 卡住 | Guide › CUDA 3.1 Reduce；*PMPP* 第 10 章 Reduction | 树形归约每一轮有多少线程空闲？怎样减少分支发散？ | 50m |
