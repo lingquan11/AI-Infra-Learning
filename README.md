@@ -8,15 +8,15 @@ From CUDA kernels to an LLM inference engine on a single RTX 5060 Ti: hand-writt
 <!-- progress:start -->
 ```
 当前战役 C1 CUDA SGEMM 阶梯优化
-  ░░░░░░░░░░░░░░░░░░░░   0%  0/8 个必做任务通过 · 已用 0h / 计划 39h · 截止 2027-01-10
-整条路线 C0 → C4
-  ░░░░░░░░░░░░░░░░░░░░   0%  0/5 个战役完成
-当前任务 C1-T01 环境打通（2026-12-07 开始，等 C0 收尾） · 最近学习 2026-11-23
+  ░░░░░░░░░░░░░░░░░░░░   0%  0/9 个必做任务通过 · 已用 0h / 计划 41h · 截止 2027-01-10
+整条路线 C0 → C5
+  ░░░░░░░░░░░░░░░░░░░░   0%  0/6 个战役完成
+当前任务 C1-T01 起步：诊断 + 指针 + Linux + CMake（2026-12-07 开始，等 C0 收尾） · 最近学习 2026-11-23
 ```
 <!-- progress:end -->
 
 ## 我怎么开始学习
-在 Codex 中打开本仓库，说"开始学习"；学完说"结束"，Codex 自动归档并更新进度。流程见 [AGENTS.md](AGENTS.md)；路线见 [start/ROADMAP.md](start/ROADMAP.md)（C1 SGEMM → C2 Triton → C3 FlashAttention-2 → C4 nano-vllm）。
+在 Codex 中打开本仓库，说"开始学习"；学完说"结束"，Codex 自动归档并更新进度。流程见 [AGENTS.md](AGENTS.md)；路线见 [start/ROADMAP.md](start/ROADMAP.md)（C1 CUDA → C2 Triton → C3 FlashAttention-2 → C4 推理引擎 → C5 分布式训练），每个任务的阅读材料见 [start/reading-map.md](start/reading-map.md)。
 
 ## 学习过程
 [journey/](journey/README.md)：时间线、每次学习的日志、笔记、考核记录。

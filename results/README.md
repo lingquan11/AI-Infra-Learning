@@ -12,6 +12,7 @@
 | `sgemm/` | v1–v5 对比 cuBLAS 的阶梯表 + ncu 剖析 | C1 |
 | `triton-kernels/` | Fused Softmax / RMSNorm + 带宽对比 | C2 |
 | `flash-attn-fwd/` | FlashAttention-2 forward（Triton） | C3 |
-| `nano-vllm-study/` | 源码剖析 + 实测报告 | C4 |
+| `nano-vllm-study/` | 源码剖析 + 换上自己的 FA2 的实测 | C4 |
+| `distributed-from-scratch/` | DDP、ZeRO-1、TP、PP 的从零实现（单机 gloo） | C5 |
 
 结论表格式见 [start/templates/results-readme.md](../start/templates/results-readme.md)。

@@ -1,71 +1,83 @@
-# 路线图：单卡计算与推理底层闭环
+# 路线图：从 CPU 矩阵乘法到单卡推理与分布式训练
 
-> 这是整条路线的唯一总表。当前进度看 [STATE.md](STATE.md)，当前战役在 [campaigns/](campaigns/) 中。
-> 战役结束时只改本页的"状态"列，不改路线；路线调整须由我本人决定，并在本页末尾的"变更记录"中写一行。
+> 这是整条路线的唯一总表。当前进度看 [STATE.md](STATE.md)，当前战役在 [campaigns/](campaigns/) 中，每个任务的阅读材料在 [reading-map.md](reading-map.md)。
+> 战役结束时只改本页的"状态"列；路线调整由我本人决定，并在本页末尾的"变更记录"中写一行。
 
-## 原则
-1. **一手来源 → 独立手写 → 硬件指标验收**：材料只用原仓库、原论文和官方文档；核心实现 `[me]` 由我自己写；验收看正确性和 profiler 数字，不看"学过"。
-2. **战役制**：每个战役 3–5 周，只有一个公开交付物，分必做线和加分线，到期必须收尾（见 [RULES.md](RULES.md)）。
-3. **每个战役单独有价值**：任何一个战役结束后停下来，仓库里都留有一份完整、可复现的成果。
+## 起点：我现在会什么（依据 cpp-matmul 仓库的证据）
+| 已有 | 还没有（由各战役的"起步任务"按需补上） |
+|---|---|
+| C++ 基础（静态数组、循环、计时）；Windows + MSVC | 指针与动态内存、Linux / WSL、CMake → C1-T01 |
+| 矩阵乘法、循环顺序、分块；正确性校验与中位数测量 | CUDA（从零开始）→ C1 |
+| CPU 缓存行、带宽、IPC、Top-down 的概念（Day 8） | Python、NumPy、PyTorch → C2-T01 |
+| Git、GitHub | Transformer 与注意力 → C3-T01；LLM 推理 → C4-T01；集合通信 → C5-T01 |
 
-## 前置与衔接
-- **前置**：C0 在 [cpp-matmul-performance](https://github.com/lingquan11/cpp-matmul-performance) 仓库中进行（截止 2026-12-06）：CPU 上的访存、分块、SIMD 直觉
-- **寒假**：转到 [IC-Design-Learning](https://github.com/lingquan11/IC-Design-Learning)（同样的仓库骨架和工作流）
-- **寒假后**：回到本仓库继续 C2–C4
+**原则：前置知识只在用到之前补，不集中补课。** 每个战役的第一个任务是"起步任务"：先做一个短诊断，已经会的部分直接跳过，只补缺口。
 
-## 硬件与环境基线（C1-T01 实测核对，以实测为准）
-- GPU：RTX 5060 Ti，Blackwell，计算能力 12.0（`sm_120`）
-- 系统：Windows + WSL2（Ubuntu 24.04）；在 WSL2 内**只装 CUDA Toolkit，不装 Linux 显卡驱动**
-- CUDA Toolkit ≥ 12.8；PyTorch ≥ 2.8（cu128 版本）；Nsight Compute（`ncu`）需要开启性能计数器权限
+## 贯穿全程的五条线索（为什么是这个顺序）
+| 线索 | C0 cpp | C1 CUDA | C2 Triton | C3 注意力 | C4 推理引擎 | C5 分布式 |
+|---|---|---|---|---|---|---|
+| **矩阵乘法** | 循环顺序、分块 | 共享内存 / 寄存器分块 | Triton matmul，对照 C1 | 注意力 = 两次矩阵乘 + softmax | 模型前向中的 GEMM | 张量并行切分矩阵乘 |
+| **归约与 softmax** | — | LeetGPU 的归约题 | 融合 softmax | online softmax → FA2 | 采样中的 softmax | all-reduce 就是跨卡归约 |
+| **访存与显存** | CPU 缓存 | 合并访问、共享内存 | 带宽利用率 | 显存从 O(N²) 降到 O(N) | KV cache 分页管理 | ZeRO 分片 |
+| **测量** | `chrono` 中位数 | `cudaEvent` + ncu | `triton.testing` + 带宽百分比 | PyTorch profiler / nsys | TTFT / TPOT / 吞吐 | 通信量与扩展性 |
+| **成果复用** | — | v5 SGEMM | C2 的 matmul 对照 C1 | 自己的 FA2 kernel | **用自己的 FA2 替换 flash-attn** | 在自己的小模型上做并行 |
+
+## 硬件与环境（C1-T02 实测核对）
+- RTX 5060 Ti，Blackwell，计算能力 12.0（`sm_120`）；Windows + WSL2（Ubuntu 24.04），WSL 内只装 CUDA Toolkit，不装 Linux 显卡驱动
+- CUDA Toolkit ≥ 12.8；PyTorch ≥ 2.7 的 cu128 版本（C2-T01 安装）；ncu 需要在 Windows 端开启性能计数器
 
 ## 战役总表
-
 | ID | 战役 | 窗口 | 预算 | 唯一交付物 | 必做验收摘要 | 状态 |
 |---|---|---|---:|---|---|---|
 | C0 | cpp-matmul 收尾 v1.0 | 2026-11-23 → 2026-12-06 | 16–20h | 在 cpp-matmul-performance 仓库 | 见该仓库 `start/` | 进行中 |
-| C1 | CUDA SGEMM 阶梯优化 | 2026-12-07 → 2027-01-10 | 40–50h | `results/sgemm/`：v1–v5 + cuBLAS 基线 + ncu 报告 | v1–v5 全部通过数值校验；4096³ FP32 下 v5 ≥ cuBLAS 的 50%（未达到时用 ncu 数据解释差距）；ncu 对比 v1/v3/v5 | 未开始 |
+| C1 | CUDA SGEMM 阶梯优化 | 2026-12-07 → 2027-01-10 | 40–50h | `results/sgemm/`：v1–v5 + cuBLAS 基线 + ncu 报告 | v1–v5 全部通过数值校验；4096³ FP32 下 v5 ≥ cuBLAS 的 50%（未达到时用 ncu 数据解释）；ncu 对比 v1/v3/v5 | 未开始 |
 | — | *寒假：IC 战役* | 约 2027-01 中旬 → 2 月中旬 | — | 见 IC-Design-Learning | — | — |
-| C2 | Triton 与访存密集型融合算子 | 寒假后，暂定 4 周 | 30–40h | `results/triton-kernels/`：Fused Softmax、Fused RMSNorm + 带宽对比 | 两个算子 `allclose` 通过；多种隐藏层维度下的有效带宽（GB/s）对比 PyTorch eager 和 `torch.compile`，并计算占理论峰值的百分比 | 未开始 |
-| C3 | FlashAttention-2 Forward 复现 | C2 之后，暂定 4–5 周 | 35–45h | `results/flash-attn-fwd/`：Triton 版 FA2 forward（支持 causal） | 与 `scaled_dot_product_attention` 对比 `allclose(atol=1e-2, rtol=1e-2)`；序列长度 512–4096 的延迟曲线和峰值显存曲线；手写 online softmax 推导 | 未开始 |
-| C4 | 轻量推理引擎拆解 | C3 之后，暂定 3–4 周 | 25–35h | `results/nano-vllm-study/`：源码剖析 + 5060 Ti 实测报告 | Qwen3-0.6B 跑通 `example.py` 和 `bench.py`；手绘数据流图；二选一完成：A. 换用自己的 RMSNorm 后输出 token 一致；B. 消融实验，画出 TTFT/TPOT/吞吐曲线 | 未开始 |
+| C2 | Triton 与融合算子 | 寒假后，约 4 周 | 25–35h | `results/triton-kernels/`：融合 softmax、融合 RMSNorm + 带宽对比 | 两个算子 `allclose` 通过；多种隐藏层维度下的带宽对比 PyTorch eager 和 `torch.compile`，并算出占峰值的百分比 | 未开始 |
+| C3 | FlashAttention-2 Forward | C2 之后，约 4–5 周 | 35–45h | `results/flash-attn-fwd/`：Triton 版 FA2 forward（支持 causal） | 通过 CS336 A2 的 FA2 测试；与 `scaled_dot_product_attention` 对比 `allclose(atol=1e-2, rtol=1e-2)`；序列长度 512–4096 的延迟和显存曲线 | 未开始 |
+| C4 | 推理引擎拆解 | C3 之后，约 3–4 周 | 25–35h | `results/nano-vllm-study/`：源码剖析 + 换上自己的 FA2 的实测 | Qwen3-0.6B 跑通 `example.py` / `bench.py`；手绘数据流图；用自己的 FA2（或 Triton attention）替换 flash-attn 后输出一致，并对比吞吐 | 未开始 |
+| C5 | 分布式训练（单机模拟） | C4 之后，约 4 周 | 30–40h | `results/distributed-from-scratch/`：DDP、ZeRO-1、TP、PP 的从零实现 | 用 gloo 多进程（CPU）运行，各并行方式的 loss 与单进程训练一致；手推显存与通信量 | 未开始 |
 
-合计约 130–170h。只有 C1 排在寒假前；C2–C4 的窗口在寒假结束、看到实际课表后再定。
+合计约 170–220h。只有 C1 排在寒假前；C2–C5 的具体窗口在寒假后看课表再定。
 
 ---
 
 ## C1 CUDA SGEMM 阶梯优化
-- **要回答的问题**：CPU 上学到的访存、分块和向量化直觉，在 GPU 的 SIMT 模型和存储层次（GMEM → L2 → SMEM → 寄存器）中分别对应什么？
-- **锚点**：[srush/GPU-Puzzles](https://github.com/srush/GPU-Puzzles)（14 题热身）；Simon Boehm 的博客 [How to Optimize a CUDA Matmul Kernel for cuBLAS-like Performance](https://siboehm.com/articles/22/CUDA-MMM) 和仓库 [siboehm/SGEMM_CUDA](https://github.com/siboehm/SGEMM_CUDA)（只读，不 clone 运行）；*PMPP* 第 4 版第 3–6 章（按需查阅）；[CUDA Programming Guide](https://docs.nvidia.com/cuda/cuda-programming-guide/)；[Nsight Compute 文档](https://docs.nvidia.com/nsight-compute/)
-- **加分线候选**：v6 `float4` 向量化访存 + 转置（目标 ≥ 70% cuBLAS）；v7 消除 bank conflict + 双缓冲；warptiling
-- **主要风险**：WSL2 下 `ncu` 拿不到硬件计数器 → C1-T01 第一周就验证，退路是改用 Windows 原生工具链
+- **起步任务 C1-T01**：诊断 + 指针与动态内存 + WSL / Linux + CMake（cudaMalloc 和 kernel 参数都是指针，这是写 CUDA 的硬前置）
+- **热身**：[LeetGPU](https://leetgpu.com/challenges)：在浏览器里写 CUDA C++，跑在真实 GPU 上（CUDA 12.8），不用担心本地环境
+- **主线**：Simon Boehm 的博客 [How to Optimize a CUDA Matmul Kernel](https://siboehm.com/articles/22/CUDA-MMM)（Kernel 1–5）；*PMPP* 第 4 版第 2–6 章（按需查阅）
+- **对照代码**：[LeetCUDA](https://github.com/xlite-dev/LeetCUDA) 的 `kernels/sgemm`、`kernels/reduce`（自己写完再看）
+- **加分**：v6 `float4` 向量化（≥ 70% cuBLAS）、v7 双缓冲、warptiling
+- **风险**：WSL2 下 ncu 拿不到计数器 → C1-T02 验证，退路是改用 Windows 原生工具链
 
 ## C2 Triton 与融合算子
-- **要回答的问题**：从 CUDA 的"单线程视角"切换到 Triton 的"block 张量视角"，访存密集型算子的上限由什么决定？
-- **锚点**：[srush/Triton-Puzzles](https://github.com/srush/Triton-Puzzles)（前 8–10 题）；[Triton 官方教程](https://triton-lang.org/main/getting-started/tutorials/index.html) 前 3 个（Vector Add、Fused Softmax、Matrix Multiplication）
-- **必做**：Fused Softmax、Fused RMSNorm；带宽对比表；占峰值带宽的百分比
-- **加分线候选**：LayerNorm backward；Triton matmul 与 C1 的 v5 对比
-- **主要风险**：Triton 对 `sm_120` 的支持取决于 PyTorch 自带的 Triton 版本 → 第一张任务卡先跑通官方 vector add
+- **起步任务 C2-T01**：Python + NumPy + PyTorch 张量基础 → 安装 PyTorch（cu128）→ 在 `sm_120` 上跑通 Triton 官方的 vector add（同时验证 Triton 支持）
+- **主线**：[Triton-Puzzles](https://github.com/gpu-mode/Triton-Puzzles)（前 8–10 题）；[Triton 官方教程](https://triton-lang.org/main/getting-started/tutorials/index.html) 前 3 个
+- **衔接**：融合 softmax 是 C3 online softmax 的前一步；Triton matmul 与 C1 的 v5 对比
+- **加分**：LayerNorm backward
 
 ## C3 FlashAttention-2 Forward
-- **要回答的问题**：怎样在不物化 N×N 矩阵的前提下保持数值稳定？显存为什么能从 O(N²) 降到 O(N)？
-- **锚点**：Tri Dao, *FlashAttention-2*（[arXiv:2307.08691](https://arxiv.org/abs/2307.08691)）第 2.3 节（FlashAttention 与 online softmax）、第 3.1 节（Algorithm 1）；FlashAttention-1（[arXiv:2205.14135](https://arxiv.org/abs/2205.14135)）作对照；Triton 官方教程 *Fused Attention*（只在自己写完后对照）
-- **必做**：手写推导（拍照入库）→ 非 causal 版 → causal 版 → 精度验收 → 延迟和显存曲线
-- **加分线候选**：backward pass；不同 head_dim 的性能对比
+- **起步任务 C3-T01**：用 PyTorch 手写一个注意力层（跟着 Karpathy 的 [Let's build GPT](https://github.com/karpathy/ng-video-lecture)）→ 手算注意力的 FLOPs 和显存 → 数值稳定的 softmax
+- **主线**：Stanford [CS336 Assignment 2](https://github.com/stanford-cs336/assignment2-systems) 第 4 节（FA2 Triton kernel，作业自带测试）；*FlashAttention-2*（[arXiv:2307.08691](https://arxiv.org/abs/2307.08691)）第 2.3 节和 Algorithm 1
+- **加分**：backward pass；不同 head_dim 的性能对比
 
 ## C4 推理引擎拆解
-- **要回答的问题**：KV Cache 怎样分页管理？调度器怎样在 prefill 和 decode 之间做决策？
-- **锚点**：[GeeeekExplorer/nano-vllm](https://github.com/GeeeekExplorer/nano-vllm)；vLLM 论文 *Efficient Memory Management for Large Language Model Serving with PagedAttention*（SOSP 2023，[arXiv:2309.06180](https://arxiv.org/abs/2309.06180)）前 4 节
-- **必做**：跑通基准测试；逐个读 `LLMEngine`、`Scheduler`、`BlockManager`、`ModelRunner`，画出数据流图；完成选项 A 或 B
-- **主要风险**：nano-vllm 依赖 `flash-attn`，它在 `sm_120` 上能否安装需要先验证 → 第一张任务卡只做环境验证，失败时记录原因并寻找替代方案
+- **起步任务 C4-T01**：LLM 推理基础（prefill / decode、KV cache 大小手算）→ 用 HF transformers 跑一次生成 → **验证 nano-vllm 依赖的 flash-attn 能否在 `sm_120` 上安装**（社区报告目前不支持；装不上就直接进入"替换"路线）
+- **主线**：[nano-vllm](https://github.com/GeeeekExplorer/nano-vllm)；vLLM 论文（[arXiv:2309.06180](https://arxiv.org/abs/2309.06180)）前 4 节；AIInfraGuide 推理模块第 3 章"nano-vllm 源码解读"作为中文导读
+- **加分**：KV cache 量化；消融实验（CUDA Graph 开关、并发数）
+
+## C5 分布式训练（单机模拟）
+- **起步任务 C5-T01**：集合通信原语（broadcast / reduce / all-reduce / all-gather / reduce-scatter）→ 用 `torch.distributed` + gloo 在单机起多进程跑通 all-reduce
+- **主线**：CS336 A2 的 DDP 与优化器状态分片部分（作业说明原文：本地开发用 Gloo，可以在只有 CPU 的机器上运行）；HF [picotron_tutorial](https://github.com/huggingface/picotron_tutorial)（分步视频 + 代码；[picotron](https://github.com/huggingface/picotron) 支持 `--use_cpu` 在 CPU 上跑 3D 并行）
+- **单卡做不到的**：真实互联带宽和多卡加速比
+- **加分**：租 2–4 张卡几小时，跑 `nccl-tests` 并对比 gloo 的结果
 
 ---
 
-## 路线完成后的自检（C4 结束时做一次）
-1. **独立手写**：给一个新的算子公式（比如某种 Normalization 变体），不参考现成实现，2 天内写出数值正确、带宽利用率合理的 Triton 或 CUDA 版本。
-2. **剖析直觉**：拿到一段慢的推理代码，能用 `ncu` 或 PyTorch Profiler 判断它是算力受限、带宽受限，还是调度和 launch 开销受限。
-3. **证据链**：GitHub 上有一条连续、可一键复现的链条：CPU 矩阵优化 → CUDA 阶梯优化 → Triton 论文复现 → 推理系统拆解。
-
-之后的方向（FP8/INT4 量化、Tensor Core、CUTLASS/CuTe、向 vLLM/SGLang 提 PR）记在 [IDEAS.md](IDEAS.md)，C4 结束后再决定。
+## 路线完成后的自检（C5 结束时）
+1. **独立手写**：给一个新算子公式，2 天内写出数值正确、带宽利用率合理的 Triton 或 CUDA 版本。
+2. **剖析直觉**：拿到一段慢代码，能用 ncu / PyTorch Profiler 判断是算力受限、带宽受限，还是调度和 launch 开销受限。
+3. **证据链**：GitHub 上有一条连续、可复现的链条：CPU 矩阵乘 → CUDA 阶梯优化 → Triton 融合 → FA2 → 推理引擎改造 → 分布式从零实现。
 
 ## 变更记录
-- 2026-11-23：由 [原始 8 周手册](../journey/archive/2026-11-20-ai-infra-8-week-handbook.md) 改写。主要改动：时间按 1.5–2 倍重估，拆成 4 个战役；C++ 收尾移回 cpp-matmul 仓库；"v6 达到 cuBLAS 的 70%"从必做降为加分（必做改为 v5 ≥ 50% 或给出解释）；每个战役的第一张任务卡先排除环境风险。
+- 2026-11-23：由 [原始 8 周手册](../journey/archive/2026-11-20-ai-infra-8-week-handbook.md) 改写为 C1–C4。
+- 2026-11-24：按入门性与连贯性重排：每个战役加"起步任务"（前置按需补）；C1 热身由 GPU-Puzzles（Python，Colab 有报告损坏）换成 LeetGPU（CUDA C++）；PyTorch 安装移到 C2-T01；C3 以 CS336 A2 为主线；C4 改为用自己的 FA2 替换 flash-attn（flash-attn 在 sm_120 上没有官方支持）；新增 C5 分布式训练（单机 gloo 模拟）；新增五条贯穿线索和导读表。

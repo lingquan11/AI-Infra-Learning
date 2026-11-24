@@ -1,6 +1,6 @@
-# C1-T01 环境打通 + Vector Add + 第一次 ncu
+# C1-T02 环境打通 + Vector Add + 第一次 ncu
 
-- **线**：必做 | **计划用时**：3h | **前置**：无
+- **线**：必做 | **计划用时**：3h | **前置**：C1-T01（指针、Linux 命令、CMake）
 - **一句话目标**：在 WSL2 中写一个 CUDA 程序，编译、运行、用 ncu 采到硬件指标；把整个链路的风险压到第一周
 
 ## 材料（一手来源）
@@ -8,7 +8,6 @@
 - CUDA Toolkit 下载页，选 Linux → x86_64 → WSL-Ubuntu：https://developer.nvidia.com/cuda-downloads
 - 性能计数器权限（ERR_NVGPUCTRPERM）：https://developer.nvidia.com/nvidia-development-tools-solutions-err_nvgpuctrperm-permission-issue-performance-counters
 - Nsight Compute 命令行文档：https://docs.nvidia.com/nsight-compute/NsightComputeCli/index.html
-- PyTorch 安装页：https://pytorch.org/get-started/locally/
 - CUDA Programming Guide 的 Programming Model 部分：https://docs.nvidia.com/cuda/cuda-programming-guide/
 
 ## 步骤
@@ -21,18 +20,14 @@
    ```bash
    ncu --metrics sm__throughput.avg.pct_of_peak_sustained_elapsed,gpu__dram_throughput.avg.pct_of_peak_sustained_elapsed ./vector-add
    ```
-7. 【me】在 Python 虚拟环境中安装 PyTorch（cu128 版本），运行：
-   ```bash
-   python3 -c "import torch; print(torch.__version__, torch.version.cuda, torch.cuda.get_device_capability())"
-   ```
-8. 【me】写 `results/hw/rtx5060ti.md`：贴第 4 步的输出；**手算**理论 FP32 峰值（SM 数 × 每 SM 的 FP32 单元数 × 2 × 频率）和理论显存带宽（写出公式），再与 NVIDIA 官方规格页对照。如果差了 2 倍或 4 倍，查明原因。
+7. 【me】写 `results/hw/rtx5060ti.md`：贴第 4 步的输出；**手算**理论 FP32 峰值（SM 数 × 每 SM 的 FP32 单元数 × 2 × 频率）和理论显存带宽（写出公式），再与 NVIDIA 官方规格页对照。如果差了 2 倍或 4 倍，查明原因。
 
 ## 所有权
 - `[me]`：`device-info.cu`、`vector-add.cu`、`results/hw/rtx5060ti.md` 中的计算
 - `[ai]`：安装过程中的报错排查（只给建议，命令由我执行）
 
 ## 机器验收（开工前写死，AI 不得修改）
-- [ ] `results/hw/rtx5060ti.md` 贴有以下命令的原始输出：`nvcc -V`（≥ 12.8）、`nvidia-smi`、PyTorch 检查（包含 `(12, 0)`）、`device-info`
+- [ ] `results/hw/rtx5060ti.md` 贴有以下命令的原始输出：`nvcc -V`（≥ 12.8）、`nvidia-smi`、`device-info`（PyTorch 的安装和检查移到 C2-T01，用到时再装）
 - [ ] `vector-add` 在两个规模下都输出 PASS，命令和输出贴进 log 或 notes
 - [ ] ncu 输出中有 vector add kernel 的两个指标数值（截图或文本入库）
 - [ ] 理论峰值算力和带宽有公式、有数字，并与官方规格对照过
