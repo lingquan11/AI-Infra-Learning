@@ -2,7 +2,7 @@
 
 - 更新：2026-11-23
 - 战役：C1 CUDA SGEMM 阶梯优化（2026-12-07 → 2027-01-10）→ [campaigns/c1-cuda-sgemm/campaign.md](campaigns/c1-cuda-sgemm/campaign.md)
-- 当前任务：C1-T01 起步：诊断 + 指针 + Linux + CMake（2026-12-07 开始，等 C0 收尾）→ [t01-start.md](campaigns/c1-cuda-sgemm/t01-start.md)
+- 当前任务：C1-T01 起步：诊断 + Linux + CMake（2026-12-07 开始，等 C0 收尾）→ [t01-start.md](campaigns/c1-cuda-sgemm/t01-start.md)
 - 本战役已用：0h / 预算 40–50h
 
 ## 上次停在哪

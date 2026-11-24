@@ -9,7 +9,7 @@
 ## C1 CUDA SGEMM（逐任务）
 | 编号 | 任务 | 时机 | 来源与章节 | 读完要回答 | 时长 |
 |---|---|---|---|---|---|
-| R-C1-01 | T01 | 做前 | [learncpp.com](https://www.learncpp.com/)：Pointers、Dynamic memory allocation | `new[]` 和 `delete[]` 必须配对的原因？指针 +1 移动了多少字节？ | 60m |
+| R-C1-01 | T01 | 卡住（第 1、2 题 < 2 分时） | [learncpp.com](https://www.learncpp.com/)：Pointers、Dynamic memory allocation | `new[]` 和 `delete[]` 必须配对的原因？指针 +1 移动了多少字节？ | 60m |
 | R-C1-02 | T01 | 卡住 | [Missing Semester：The Shell](https://missing.csail.mit.edu/2020/course-shell/) | 绝对路径和相对路径；管道 `\|` 做了什么？ | 45m |
 | R-C1-03 | T02 | 做前 | [Guide › 前置知识](https://caomaolufei.github.io/AIInfraGuide/prerequisites/) 第 5 章「GPU 硬件概论」+ 5.1 架构演进 | SM、warp、显存层次分别对应 CPU 的什么？为什么 GPU 用更多线程来隐藏延迟？ | 40m |
 | R-C1-04 | T02 | 做前 | [Guide › CUDA](https://caomaolufei.github.io/AIInfraGuide/cuda/) 1.2 编程模型、1.3 内存模型、1.4 向量加法 | grid / block / thread 怎样算出全局下标？host 和 device 内存怎样拷贝？ | 50m |
@@ -27,7 +27,7 @@
 ## C2 Triton 与融合算子（任务卡展开时细化）
 | 编号 | 任务 | 时机 | 来源与章节 | 读完要回答 |
 |---|---|---|---|---|
-| R-C2-01 | 起步 | 做前 | [PyTorch 60 Minute Blitz](https://docs.pytorch.org/tutorials/beginner/deep_learning_60min_blitz.html)：Tensors 一节；Guide › 前置知识 第 4 章 PyTorch | 张量怎样放到 GPU 上？`.contiguous()` 是什么意思？ |
+| R-C2-01 | 起步 | 做前 | [PyTorch 60 Minute Blitz](https://docs.pytorch.org/tutorials/beginner/deep_learning_60min_blitz.html)：Tensors 一节；Guide › 前置知识 第 4 章 PyTorch | 和 NumPy 数组相比，PyTorch 张量多了什么（设备、自动求导）？`.contiguous()` 是什么意思？为什么 GPU 计时前要 `torch.cuda.synchronize()`？ |
 | R-C2-02 | 起步 | 做前 | [Triton 教程](https://triton-lang.org/main/getting-started/tutorials/index.html) 01 Vector Addition | Triton 的一个 program 对应 CUDA 的什么？`BLOCK_SIZE` 和 mask 的作用？ |
 | R-C2-03 | 融合 softmax | 做前 | Triton 教程 02 Fused Softmax；Guide › CUDA 5.1 朴素 softmax | 融合之后省掉了哪几次显存读写？ |
 | R-C2-04 | 融合 RMSNorm | 做后 | LeetCUDA `kernels/rms-norm`、`kernels/openai-triton` | 与你的实现对比：带宽利用率差在哪里？ |

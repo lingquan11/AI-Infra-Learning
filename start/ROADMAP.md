@@ -3,12 +3,12 @@
 > 这是整条路线的唯一总表。当前进度看 [STATE.md](STATE.md)，当前战役在 [campaigns/](campaigns/) 中，每个任务的阅读材料在 [reading-map.md](reading-map.md)。
 > 战役结束时只改本页的"状态"列；路线调整由我本人决定，并在本页末尾的"变更记录"中写一行。
 
-## 起点：我现在会什么（依据 cpp-matmul 仓库的证据）
+## 起点：我现在会什么（依据 cpp-matmul 仓库的证据和我的自述）
 | 已有 | 还没有（由各战役的"起步任务"按需补上） |
 |---|---|
-| C++ 基础（静态数组、循环、计时）；Windows + MSVC | 指针与动态内存、Linux / WSL、CMake → C1-T01 |
+| C++ 基础（数组、循环、计时）；**指针与动态内存能读懂基本代码**；Windows + MSVC | Linux / WSL、CMake → C1-T01 |
 | 矩阵乘法、循环顺序、分块；正确性校验与中位数测量 | CUDA（从零开始）→ C1 |
-| CPU 缓存行、带宽、IPC、Top-down 的概念（Day 8） | Python、NumPy、PyTorch → C2-T01 |
+| CPU 缓存行、带宽、IPC、Top-down 的概念（Day 8）；**Python + NumPy 能读懂基本代码** | PyTorch → C2-T01 |
 | Git、GitHub | Transformer 与注意力 → C3-T01；LLM 推理 → C4-T01；集合通信 → C5-T01 |
 
 **原则：前置知识只在用到之前补，不集中补课。** 每个战役的第一个任务是"起步任务"：先做一个短诊断，已经会的部分直接跳过，只补缺口。
@@ -42,7 +42,7 @@
 ---
 
 ## C1 CUDA SGEMM 阶梯优化
-- **起步任务 C1-T01**：诊断 + 指针与动态内存 + WSL / Linux + CMake（cudaMalloc 和 kernel 参数都是指针，这是写 CUDA 的硬前置）
+- **起步任务 C1-T01**：诊断（指针只做快速确认：cudaMalloc 和 kernel 参数都是指针，要能写出来，不只是读懂）+ WSL / Linux + CMake
 - **热身**：[LeetGPU](https://leetgpu.com/challenges)：在浏览器里写 CUDA C++，跑在真实 GPU 上（CUDA 12.8），不用担心本地环境
 - **主线**：Simon Boehm 的博客 [How to Optimize a CUDA Matmul Kernel](https://siboehm.com/articles/22/CUDA-MMM)（Kernel 1–5）；*PMPP* 第 4 版第 2–6 章（按需查阅）
 - **对照代码**：[LeetCUDA](https://github.com/xlite-dev/LeetCUDA) 的 `kernels/sgemm`、`kernels/reduce`（自己写完再看）
@@ -50,7 +50,7 @@
 - **风险**：WSL2 下 ncu 拿不到计数器 → C1-T02 验证，退路是改用 Windows 原生工具链
 
 ## C2 Triton 与融合算子
-- **起步任务 C2-T01**：Python + NumPy + PyTorch 张量基础 → 安装 PyTorch（cu128）→ 在 `sm_120` 上跑通 Triton 官方的 vector add（同时验证 Triton 支持）
+- **起步任务 C2-T01**：PyTorch 张量基础（从 NumPy 迁移：设备、dtype、`contiguous`、GPU 计时）→ 安装 PyTorch（cu128）→ 在 `sm_120` 上跑通 Triton 官方的 vector add（同时验证 Triton 支持）
 - **主线**：[Triton-Puzzles](https://github.com/gpu-mode/Triton-Puzzles)（前 8–10 题）；[Triton 官方教程](https://triton-lang.org/main/getting-started/tutorials/index.html) 前 3 个
 - **衔接**：融合 softmax 是 C3 online softmax 的前一步；Triton matmul 与 C1 的 v5 对比
 - **加分**：LayerNorm backward
@@ -81,3 +81,4 @@
 ## 变更记录
 - 2026-11-23：由 [原始 8 周手册](../journey/archive/2026-11-20-ai-infra-8-week-handbook.md) 改写为 C1–C4。
 - 2026-11-24：按入门性与连贯性重排：每个战役加"起步任务"（前置按需补）；C1 热身由 GPU-Puzzles（Python，Colab 有报告损坏）换成 LeetGPU（CUDA C++）；PyTorch 安装移到 C2-T01；C3 以 CS336 A2 为主线；C4 改为用自己的 FA2 替换 flash-attn（flash-attn 在 sm_120 上没有官方支持）；新增 C5 分布式训练（单机 gloo 模拟）；新增五条贯穿线索和导读表。
+- 2026-11-24：按自述更新起点：指针与动态内存、Python + NumPy 已有基础；C1-T01 缩为诊断 + Linux + CMake（2h），C2-T01 只补 PyTorch。
