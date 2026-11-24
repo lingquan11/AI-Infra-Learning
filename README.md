@@ -34,4 +34,4 @@ From CUDA kernels to an LLM inference engine on a single RTX 5060 Ti: hand-writt
 暂无成果：C1 CUDA SGEMM 从 2026-12-07 开始，第一个任务通过后这里换成结论表。
 <!-- results:end -->
 
-相关仓库：[cpp-matmul-performance](https://github.com/lingquan11/cpp-matmul-performance)（前置 C0：CPU 矩阵乘法）· [IC-Design-Learning](https://github.com/lingquan11/IC-Design-Learning)（数字 IC 路线）
+相关仓库：[cpp-matmul-performance](https://github.com/lingquan11/cpp-matmul-performance)（前置 C0：CPU 矩阵乘法）· [IC-Design-Learning](https://github.com/lingquan11/IC-Design-Learning)（数字 IC 路线） · 工作流：[learning-workflow](https://github.com/lingquan11/learning-workflow)（三个仓库共用的规则、提示词和进度脚本）
