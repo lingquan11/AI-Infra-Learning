@@ -1,91 +1,73 @@
-# 路线图：从 CPU 矩阵乘法到单卡推理与分布式训练
+# 路线图：从 CUDA 算子到单卡推理与分布式训练
 
-> 这是整条路线的唯一总表。当前进度看 [STATE.md](STATE.md)，当前战役在 [campaigns/](campaigns/) 中，每个任务的阅读材料在 [reading-map.md](reading-map.md)。
+> 这是整条路线的唯一总表。当前进度看 [STATE.md](STATE.md)，当前战役在 [campaigns/](campaigns/) 中。
 > 战役结束时只改本页的"状态"列；路线调整由我本人决定，并在本页末尾的"变更记录"中写一行。
 
-## 起点：我现在会什么（依据 cpp-matmul 仓库的证据和我的自述）
-| 已有 | 还没有（由各战役的"起步任务"按需补上） |
-|---|---|
-| C++ 基础（数组、循环、计时）；**指针与动态内存能读懂基本代码**；Windows + MSVC | GPU 硬件与编程模型 → C1-T01；Linux / WSL、CMake 工具链 → 环境任务 C1-S01（Muse） |
-| 矩阵乘法、循环顺序、分块；正确性校验与中位数测量 | CUDA（从零开始）→ C1 |
-| CPU 缓存行、带宽、IPC、Top-down 的概念（Day 8）；**Python + NumPy 能读懂基本代码** | PyTorch → C2-T01 |
-| Git、GitHub | Transformer 与注意力 → C3-T01；LLM 推理 → C4-T01；集合通信 → C5-T01 |
+## 三栏学习
+| 栏 | 谁 | 内容 |
+|---|---|---|
+| **阅读** `Rxx` | 我自己，不和 AI 对话 | 教材、经典论文、作者本人写的长文；每篇附自测问题，不考核；读完告诉 Muse 记录 |
+| **编程** `Pxx` | GPT 带我写 | kernel 与算子本体由我写，GPT 只按提示梯度引导；机器验收 |
+| **动手** `Hxx` | Muse | 环境、工具链、测量与剖析、作图、整理结果；需要解读的部分由我写 |
 
-**原则：前置知识只在用到之前补，不集中补课。** 每个战役的第一个学习任务是"起步任务"：先做一个短诊断，已经会的部分直接跳过，只补缺口。
-**安装和配置不算学习**：每个战役的环境、软件、工程骨架都拆成环境任务（`Sxx`），由我和 Muse 按 `prompts/setup.md` 完成，可以提前做，不计入学习进度。
+每个战役先读、再写、再测：编程和动手任务都标明"先读"哪几篇。
 
-## 贯穿全程的五条线索（为什么是这个顺序）
-| 线索 | C0 cpp | C1 CUDA | C2 Triton | C3 注意力 | C4 推理引擎 | C5 分布式 |
-|---|---|---|---|---|---|---|
-| **矩阵乘法** | 循环顺序、分块 | 共享内存 / 寄存器分块 | Triton matmul，对照 C1 | 注意力 = 两次矩阵乘 + softmax | 模型前向中的 GEMM | 张量并行切分矩阵乘 |
-| **归约与 softmax** | — | LeetGPU 的归约题 | 融合 softmax | online softmax → FA2 | 采样中的 softmax | all-reduce 就是跨卡归约 |
-| **访存与显存** | CPU 缓存 | 合并访问、共享内存 | 带宽利用率 | 显存从 O(N²) 降到 O(N) | KV cache 分页管理 | ZeRO 分片 |
-| **测量** | `chrono` 中位数 | `cudaEvent` + ncu | `triton.testing` + 带宽百分比 | PyTorch profiler / nsys | TTFT / TPOT / 吞吐 | 通信量与扩展性 |
-| **成果复用** | — | v5 SGEMM | C2 的 matmul 对照 C1 | 自己的 FA2 kernel | **用自己的 FA2 替换 flash-attn** | 在自己的小模型上做并行 |
+## 起点（依据 cpp-matmul 仓库的证据和我的自述）
+- 已有：C++（含指针与动态内存）、Python + NumPy 能读懂基本代码；矩阵乘法的循环顺序与分块；CPU 缓存、带宽、IPC 的概念；Windows + MSVC
+- 还没有：CUDA、PyTorch、Transformer、Linux 工具链（工具链由 Muse 在各战役的第一个动手任务中准备）
 
-## 硬件与环境（C1-S01 实测核对）
-- RTX 5060 Ti，Blackwell，计算能力 12.0（`sm_120`）；Windows + WSL2（Ubuntu 24.04），WSL 内只装 CUDA Toolkit，不装 Linux 显卡驱动
-- CUDA Toolkit ≥ 12.8；PyTorch ≥ 2.7 的 cu128 版本（C2-S01 安装）；ncu 需要在 Windows 端开启性能计数器
+## 贯穿全程的线索
+| 线索 | C1 CUDA | C2 Triton | C3 注意力 | C4 推理引擎 | C5 分布式 |
+|---|---|---|---|---|---|
+| 矩阵乘法 | 共享内存 / 寄存器分块 | Triton matmul，对照 C1 | 注意力 = 两次矩阵乘 + softmax | 模型前向中的 GEMM | 张量并行切分矩阵乘 |
+| 归约与 softmax | LeetGPU 的归约题 | 融合 softmax | online softmax → FA2 | 采样 | all-reduce 就是跨卡归约 |
+| 访存与显存 | 合并访问、共享内存 | 带宽利用率 | 显存 O(N²) → O(N) | KV cache 分页 | ZeRO 分片 |
+| 成果复用 | v5 SGEMM | 融合算子 | 自己的 FA2 kernel | **用自己的 FA2 替换 flash-attn** | 在自己的小模型上做并行 |
 
 ## 战役总表
 | ID | 战役 | 窗口 | 预算 | 唯一交付物 | 必做验收摘要 | 状态 |
 |---|---|---|---:|---|---|---|
 | C0 | cpp-matmul 收尾 v1.0 | 2026-11-23 → 2026-12-06 | 16–20h | 在 cpp-matmul-performance 仓库 | 见该仓库 `start/` | 进行中 |
-| C1 | CUDA SGEMM 阶梯优化 | 2026-12-07 → 2027-01-10 | 40–50h | `results/sgemm/`：v1–v5 + cuBLAS 基线 + ncu 报告 | v1–v5 全部通过数值校验；4096³ FP32 下 v5 ≥ cuBLAS 的 50%（未达到时用 ncu 数据解释）；ncu 对比 v1/v3/v5 | 未开始 |
+| C1 | CUDA SGEMM 阶梯优化 | 2026-12-07 → 2027-01-10 | 45–50h | `results/sgemm/`：v1–v5 + cuBLAS 基线 + ncu 剖析 | 读完 PMPP 第 1–6 章与 siboehm 长文；v1–v5 全部通过数值校验，v5 ≥ cuBLAS 的 50%（未达到时用 ncu 解释） | 未开始 |
 | — | *寒假：IC 战役* | 约 2027-01 中旬 → 2 月中旬 | — | 见 IC-Design-Learning | — | — |
-| C2 | Triton 与融合算子 | 寒假后，约 4 周 | 25–35h | `results/triton-kernels/`：融合 softmax、融合 RMSNorm + 带宽对比 | 两个算子 `allclose` 通过；多种隐藏层维度下的带宽对比 PyTorch eager 和 `torch.compile`，并算出占峰值的百分比 | 未开始 |
-| C3 | FlashAttention-2 Forward | C2 之后，约 4–5 周 | 35–45h | `results/flash-attn-fwd/`：Triton 版 FA2 forward（支持 causal） | 通过 CS336 A2 的 FA2 测试；与 `scaled_dot_product_attention` 对比 `allclose(atol=1e-2, rtol=1e-2)`；序列长度 512–4096 的延迟和显存曲线 | 未开始 |
-| C4 | 推理引擎拆解 | C3 之后，约 3–4 周 | 25–35h | `results/nano-vllm-study/`：源码剖析 + 换上自己的 FA2 的实测 | Qwen3-0.6B 跑通 `example.py` / `bench.py`；手绘数据流图；用自己的 FA2（或 Triton attention）替换 flash-attn 后输出一致，并对比吞吐 | 未开始 |
-| C5 | 分布式训练（单机模拟） | C4 之后，约 4 周 | 30–40h | `results/distributed-from-scratch/`：DDP、ZeRO-1、TP、PP 的从零实现 | 用 gloo 多进程（CPU）运行，各并行方式的 loss 与单进程训练一致；手推显存与通信量 | 未开始 |
+| C2 | Triton 与融合算子 | 寒假后，约 4 周 | 25–35h | `results/triton-kernels/` | 融合 softmax、融合 RMSNorm 通过 `allclose`；带宽对比表与占峰值百分比 | 未开始 |
+| C3 | FlashAttention-2 Forward | C2 之后，约 5 周 | 35–45h | `results/flash-attn-fwd/` | 通过 CS336 A2 的 FA2 测试；512–4096 的延迟与显存曲线 | 未开始 |
+| C4 | 推理引擎拆解 | C3 之后，约 4 周 | 25–35h | `results/nano-vllm-study/` | Qwen3-0.6B 跑通；用自己的 FA2 替换 flash-attn 后输出一致，并对比吞吐 | 未开始 |
+| C5 | 分布式训练（单机模拟） | C4 之后，约 4 周 | 30–40h | `results/distributed-from-scratch/` | DDP、ZeRO-1、TP、PP 的 loss 与单进程训练一致（gloo 多进程） | 未开始 |
 
-合计约 170–220h。只有 C1 排在寒假前；C2–C5 的具体窗口在寒假后看课表再定。
+合计约 180–220h。只有 C1 排在寒假前；C2–C5 的窗口在寒假后看课表再定。
 
 ---
 
 ## C1 CUDA SGEMM 阶梯优化
-- **环境任务（Muse）**：C1-S01 WSL2 + CUDA Toolkit + ncu；C1-S02 SGEMM 工程骨架（CMake + cuBLAS 链接）
-- **起步任务 C1-T01**：指针快速确认（要能写出来，不只是读懂）+ GPU 硬件与编程模型的心智模型（不需要装任何东西）
-- **热身**：[LeetGPU](https://leetgpu.com/challenges)：在浏览器里写 CUDA C++，跑在真实 GPU 上（CUDA 12.8），不用担心本地环境
-- **主线**：Simon Boehm 的博客 [How to Optimize a CUDA Matmul Kernel](https://siboehm.com/articles/22/CUDA-MMM)（Kernel 1–5）；*PMPP* 第 4 版第 2–6 章（按需查阅）
-- **对照代码**：[LeetCUDA](https://github.com/xlite-dev/LeetCUDA) 的 `kernels/sgemm`、`kernels/reduce`（自己写完再看）
-- **加分**：v6 `float4` 向量化（≥ 70% cuBLAS）、v7 双缓冲、warptiling
-- **风险**：WSL2 下 ncu 拿不到计数器 → C1-S01 验证，退路是改用 Windows 原生工具链
+- **阅读**：Kirk & Hwu, *Programming Massively Parallel Processors*（第 4 版）第 1–6 章；Simon Boehm, [How to Optimize a CUDA Matmul Kernel](https://siboehm.com/articles/22/CUDA-MMM)；Horace He, [Making Deep Learning Go Brrrr From First Principles](https://horace.io/brrr_intro.html)；[Nsight Compute Profiling Guide](https://docs.nvidia.com/nsight-compute/ProfilingGuide/index.html)
+- **编程**：vector add → LeetGPU 热身 → 校验与计时框架 → v1–v5 SGEMM
+- **动手**：WSL2 + CUDA + ncu → SGEMM 工程骨架 → v1–v5 测量与 ncu 剖析 → 收尾
+- **风险**：WSL2 下 ncu 拿不到计数器 → C1-H01 验证，退路是 Windows 原生工具链
 
 ## C2 Triton 与融合算子
-- **环境任务（Muse）**：C2-S01 安装 PyTorch（cu128）和 Triton，验证 `torch.cuda.get_arch_list()` 含 `sm_120`、Triton 官方 vector add 能在本机运行
-- **起步任务 C2-T01**：PyTorch 张量基础（从 NumPy 迁移：设备、dtype、`contiguous`、GPU 计时）→ 读懂并改写 Triton 的 vector add
-- **主线**：[Triton-Puzzles](https://github.com/gpu-mode/Triton-Puzzles)（前 8–10 题）；[Triton 官方教程](https://triton-lang.org/main/getting-started/tutorials/index.html) 前 3 个
-- **衔接**：融合 softmax 是 C3 online softmax 的前一步；Triton matmul 与 C1 的 v5 对比
-- **加分**：LayerNorm backward
+- **阅读**：Tillet, Kung, Cox, *Triton: An Intermediate Language and Compiler for Tiled Neural Network Computations*（[MAPL 2019](https://www.eecs.harvard.edu/~htk/publication/2019-mapl-tillet-kung-cox.pdf)）；[Triton 官方教程](https://triton-lang.org/main/getting-started/tutorials/index.html) 01–03；Milakov & Gimelshein, *Online normalizer calculation for softmax*（[arXiv:1805.02867](https://arxiv.org/abs/1805.02867)）
+- **编程**：改写 Triton vector add → 融合 softmax → 融合 RMSNorm；加分：Triton matmul 对照 C1 v5
+- **动手**：安装 PyTorch（cu128）与 Triton，验证 `sm_120`；带宽基准与作图
 
 ## C3 FlashAttention-2 Forward
-- **环境任务（Muse）**：C3-S01 搭好 CS336 A2 的作业环境（按其 README，测试能运行到"未实现"为止）
-- **起步任务 C3-T01**：用 PyTorch 手写一个注意力层（跟着 Karpathy 的 [Let's build GPT](https://github.com/karpathy/ng-video-lecture)）→ 手算注意力的 FLOPs 和显存 → 数值稳定的 softmax
-- **主线**：Stanford [CS336 Assignment 2](https://github.com/stanford-cs336/assignment2-systems) 第 4 节（FA2 Triton kernel，作业自带测试）；*FlashAttention-2*（[arXiv:2307.08691](https://arxiv.org/abs/2307.08691)）第 2.3 节和 Algorithm 1
-- **加分**：backward pass；不同 head_dim 的性能对比
+- **阅读**：Harvard NLP, [The Annotated Transformer](https://nlp.seas.harvard.edu/annotated-transformer/)（注意力部分）；Zihao Ye, [From Online Softmax to FlashAttention](https://courses.cs.washington.edu/courses/cse599m/23sp/notes/flashattn.pdf)；Dao et al., *FlashAttention*（[arXiv:2205.14135](https://arxiv.org/abs/2205.14135)）第 1–3 节；Dao, *FlashAttention-2*（[arXiv:2307.08691](https://arxiv.org/abs/2307.08691)）第 2–3 节
+- **编程**：PyTorch 手写注意力 → Triton FA2 forward（以 [CS336 A2](https://github.com/stanford-cs336/assignment2-systems) 的测试为验收）→ causal
+- **动手**：CS336 A2 环境；延迟与峰值显存曲线
 
 ## C4 推理引擎拆解
-- **环境任务（Muse）**：C4-S01 下载 Qwen3-0.6B，装好 transformers 和 nano-vllm；**尝试安装 flash-attn 并记录结论**（社区报告在 `sm_120` 上目前不支持；装不上就直接进入"替换"路线）
-- **起步任务 C4-T01**：LLM 推理基础（prefill / decode、KV cache 大小手算）→ 用 HF transformers 跑一次生成并解释每一步
-- **主线**：[nano-vllm](https://github.com/GeeeekExplorer/nano-vllm)；vLLM 论文（[arXiv:2309.06180](https://arxiv.org/abs/2309.06180)）前 4 节；AIInfraGuide 推理模块第 3 章"nano-vllm 源码解读"作为中文导读
-- **加分**：KV cache 量化；消融实验（CUDA Graph 开关、并发数）
+- **阅读**：Kwon et al., *PagedAttention / vLLM*（[arXiv:2309.06180](https://arxiv.org/abs/2309.06180)）第 1–4 节；Anyscale, [How continuous batching enables 23x throughput](https://www.anyscale.com/blog/continuous-batching-llm-inference)；Lilian Weng, [Large Transformer Model Inference Optimization](https://lilianweng.github.io/posts/2023-01-10-inference-optimization/)；[AIInfraGuide › 推理](https://caomaolufei.github.io/AIInfraGuide/inference/) 第 3 章 nano-vllm 源码解读（中文）
+- **编程**：用自己的 FA2 替换 [nano-vllm](https://github.com/GeeeekExplorer/nano-vllm) 的 flash-attn（varlen prefill 与 paged decode）
+- **动手**：nano-vllm 环境、Qwen3-0.6B、flash-attn 在 `sm_120` 上能否安装的结论；基准与消融实验作图
 
 ## C5 分布式训练（单机模拟）
-- **环境任务（Muse）**：C5-S01 单机多进程 `torch.distributed`（gloo）环境；picotron_tutorial 的依赖；（加分时）租卡环境
-- **起步任务 C5-T01**：集合通信原语（broadcast / reduce / all-reduce / all-gather / reduce-scatter）→ 用 `torch.distributed` + gloo 在单机起多进程跑通 all-reduce
-- **主线**：CS336 A2 的 DDP 与优化器状态分片部分（作业说明原文：本地开发用 Gloo，可以在只有 CPU 的机器上运行）；HF [picotron_tutorial](https://github.com/huggingface/picotron_tutorial)（分步视频 + 代码；[picotron](https://github.com/huggingface/picotron) 支持 `--use_cpu` 在 CPU 上跑 3D 并行）
-- **单卡做不到的**：真实互联带宽和多卡加速比
-- **加分**：租 2–4 张卡几小时，跑 `nccl-tests` 并对比 gloo 的结果
+- **阅读**：Hugging Face, [The Ultra-Scale Playbook](https://huggingface.co/spaces/nanotron/ultrascale-playbook)；Rajbhandari et al., *ZeRO*（[arXiv:1910.02054](https://arxiv.org/abs/1910.02054)）；Shoeybi et al., *Megatron-LM*（[arXiv:1909.08053](https://arxiv.org/abs/1909.08053)）；选读 [How To Scale Your Model](https://jax-ml.github.io/scaling-book/)
+- **编程**：从零实现 DDP（梯度分桶）、ZeRO-1、TP、PP，参照 [picotron_tutorial](https://github.com/huggingface/picotron_tutorial)
+- **动手**：单机 gloo 多进程环境；记录各并行方式的显存与通信量；加分：租卡跑 `nccl-tests`
 
 ---
 
-## 路线完成后的自检（C5 结束时）
-1. **独立手写**：给一个新算子公式，2 天内写出数值正确、带宽利用率合理的 Triton 或 CUDA 版本。
-2. **剖析直觉**：拿到一段慢代码，能用 ncu / PyTorch Profiler 判断是算力受限、带宽受限，还是调度和 launch 开销受限。
-3. **证据链**：GitHub 上有一条连续、可复现的链条：CPU 矩阵乘 → CUDA 阶梯优化 → Triton 融合 → FA2 → 推理引擎改造 → 分布式从零实现。
-
 ## 变更记录
-- 2026-11-23：由 [原始 8 周手册](../journey/archive/2026-11-20-ai-infra-8-week-handbook.md) 改写为 C1–C4。
-- 2026-11-24：按入门性与连贯性重排：每个战役加"起步任务"（前置按需补）；C1 热身由 GPU-Puzzles（Python，Colab 有报告损坏）换成 LeetGPU（CUDA C++）；PyTorch 安装移到 C2-T01；C3 以 CS336 A2 为主线；C4 改为用自己的 FA2 替换 flash-attn（flash-attn 在 sm_120 上没有官方支持）；新增 C5 分布式训练（单机 gloo 模拟）；新增五条贯穿线索和导读表。
-- 2026-11-24：按自述更新起点：指针与动态内存、Python + NumPy 已有基础；C1-T01 缩为诊断 + Linux + CMake（2h），C2-T01 只补 PyTorch。
-- 2026-11-24：环境、软件、工程骨架拆成环境任务（`Sxx`，与 Muse 协作，不计入学习进度）；C1 新增 C1-S01、C1-S02，学习任务 C1-T01 改为 GPU 心智模型，C1-T04 改为校验与计时，学习计划 38h。
+- 2026-11-23：由原始 8 周手册改写为战役制（见 `journey/archive/`）。
+- 2026-11-24：按入门性重排，新增 C5。
+- 2026-11-25：改为三栏学习：理论改为自己读长文、不和 AI 对话、不考核；编程由 GPT 带写；动手（环境、测量、剖析）由 Muse 负责。原导师带学版本见 [journey/archive/2026-11-24-tutor-led/](../journey/archive/2026-11-24-tutor-led/)。

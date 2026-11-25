@@ -1,6 +1,6 @@
-# C1-S01 环境：WSL2 + CUDA Toolkit + ncu（与 Muse 协作）
+# C1-H01 环境：WSL2 + CUDA Toolkit + ncu
 
-- **类型**：环境任务（按 `start/prompts/setup.md`，只做机器验收） | **预计**：1–2h | **被依赖**：C1-T02 起的所有 CUDA 任务
+- **栏**：动手（Muse，按 `start/prompts/hands-on.md`） | **计划用时**：1.5h | **先读**：无 | **被依赖**：C1-P01 起的所有 CUDA 编程任务
 - **可以提前做**：不必等到 12-07
 
 ## 官方文档
@@ -16,10 +16,10 @@
 4. 安装 `build-essential`、`cmake`、`git`；让 Codex 能打开 WSL 中的仓库目录。
 5. 用一个最小的 kernel（Muse 可以直接写，或用 CUDA samples）验证 ncu 能采到指标。
 
-## 机器验收
+## 机器验收（开工前写死，AI 不得修改）
 - [ ] WSL 内：`nvidia-smi`、`nvcc -V`（≥ 12.8）、`ncu --version`、`cmake --version`、`g++ --version` 的输出写进 `results/hw/environment.md`
 - [ ] `ncu --metrics sm__throughput.avg.pct_of_peak_sustained_elapsed <最小程序>` 输出了数值（不是 ERR_NVGPUCTRPERM）
-- [ ] Codex 能在 WSL 中的仓库目录里运行命令
+- [ ] GPT（Codex）和 Muse 都能在 WSL 中的仓库目录里运行命令
 
 ## 卡住时
 - ncu 报 ERR_NVGPUCTRPERM：确认第 1 步已设置，重启 Windows 和 WSL（`wsl --shutdown`）。

@@ -7,27 +7,29 @@ From CUDA kernels to an LLM inference engine on a single RTX 5060 Ti: hand-writt
 ## 学习进度
 <!-- progress:start -->
 ```
-当前战役 C1 CUDA SGEMM 阶梯优化
-  ░░░░░░░░░░░░░░░░░░░░   0%  0/9 个必做任务通过 · 已用 0h / 计划 38h · 截止 2027-01-10
+当前战役 C1 CUDA SGEMM 阶梯优化 · 截止 2027-01-10
+  阅读 ░░░░░░░░░░░░░░░░░░░░   0%  0/7 项完成 · 已用 0h / 计划 14h
+  编程 ░░░░░░░░░░░░░░░░░░░░   0%  0/7 项完成 · 已用 0h / 计划 29.5h
+  动手 ░░░░░░░░░░░░░░░░░░░░   0%  0/4 项完成 · 已用 0h / 计划 5.5h
 整条路线 C0 → C5
   ░░░░░░░░░░░░░░░░░░░░   0%  0/6 个战役完成
-环境准备 0/2 就绪（与 Muse 协作，不计入学习进度）· 已用 0h
-当前任务 C1-T01 起步：指针确认 + GPU 心智模型（2026-12-07 开始，等 C0 收尾）
-最近学习 2026-11-23
+当前阅读 C1-R01 PMPP 第 1–3 章（可以现在就开始读）
+当前编程任务 C1-P01 第一个 CUDA 程序（依赖 C1-H01）
+当前动手任务 C1-H01 WSL2 + CUDA + ncu（可以提前做）
+最近学习 2026-11-25
 ```
 <!-- progress:end -->
 
 ## 我怎么开始学习
-| 我想 | 对谁说 |
+| 我想 | 怎么做 |
 |---|---|
-| 学习（结束时自动归档、更新进度） | GPT / Codex："开始学习" … "结束" |
-| 考核一个做完的任务 | Gemini："考核 <任务ID>" |
-| 装环境、配工具 | Muse："准备环境" |
-
-路线见 [start/ROADMAP.md](start/ROADMAP.md)（C1 CUDA → C2 Triton → C3 FA2 → C4 推理引擎 → C5 分布式），导读见 [reading-map.md](start/reading-map.md)。
+| 学理论 | 读当前战役[阅读表](start/campaigns/c1-cuda-sgemm/campaign.md)里的长文（自己读，不找 AI）；读完对 Muse 说"读完 C1-R01" |
+| 写代码 | 对 GPT 说"开始写代码" … "结束" |
+| 装环境、跑实验 | 对 Muse 说"准备环境" / "做 C1-H01" |
+| 看整条路线 | [ROADMAP](start/ROADMAP.md)：C1 CUDA → C2 Triton → C3 FA2 → C4 推理引擎 → C5 分布式 |
 
 ## 学习过程
-[journey/](journey/README.md)：时间线、每次学习的日志、笔记、考核记录。
+[journey/](journey/README.md)：时间线、编程日志（GPT）、动手与阅读日志（Muse）、我自己的笔记。
 
 ## 学习成果
 <!-- results:start -->

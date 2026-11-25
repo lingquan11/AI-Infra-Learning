@@ -1,20 +1,18 @@
-# STATE（≤30 行，只写当前）
+# STATE（≤ 30 行；三个小节各自维护）
 
-- 更新：2026-11-23
-- 战役：C1 CUDA SGEMM 阶梯优化（2026-12-07 → 2027-01-10）→ [campaigns/c1-cuda-sgemm/campaign.md](campaigns/c1-cuda-sgemm/campaign.md)
-- 当前任务：C1-T01 起步：指针确认 + GPU 心智模型（2026-12-07 开始，等 C0 收尾）→ [t01-start.md](campaigns/c1-cuda-sgemm/t01-start.md)
-- 本战役已用：0h / 预算 40–50h
+- 更新：2026-11-25
+- 战役：C1 CUDA SGEMM 阶梯优化（2026-12-07 → 2027-01-10）→ [campaign.md](campaigns/c1-cuda-sgemm/campaign.md)
 
-## 上次停在哪
-- 仓库刚建立，还没有开始学习
+## 阅读（Muse 记录）
+- 当前阅读：C1-R01 PMPP 第 1–3 章（可以现在就开始读）
+- 下一步：读完对 Muse 说"读完 C1-R01"
 
-## 未解决的问题
-- WSL2 下 ncu 能不能拿到硬件计数器？（C1-T01 验证，失败就改用 Windows 原生工具链）
-- RTX 5060 Ti 的显存是 8GB 还是 16GB？（C1-T01 读取，会影响 C3/C4 的规模上限）
+## 编程（GPT 维护）
+- 当前编程任务：C1-P01 第一个 CUDA 程序（依赖 C1-H01）→ [p01-first-kernel.md](campaigns/c1-cuda-sgemm/p01-first-kernel.md)
+- 上次停在哪：尚未开始
+- 卡点：—
 
-## 下一步
-- 12-07 之前（可选）：和 Muse 完成环境任务 C1-S01（WSL + CUDA + ncu）→ [s01-cuda-wsl.md](campaigns/c1-cuda-sgemm/s01-cuda-wsl.md)
-- 2026-12-07 起：C1-T01（不依赖环境）
-
-## 环境
-- 待 C1-S01 填写：Windows 版本、驱动版本、WSL 发行版、CUDA 版本（详见 `results/hw/environment.md`）
+## 动手（Muse 维护）
+- 当前动手任务：C1-H01 WSL2 + CUDA + ncu（可以提前做）→ [h01-cuda-wsl.md](campaigns/c1-cuda-sgemm/h01-cuda-wsl.md)
+- 环境：待 C1-H01 填写（详见 `results/hw/environment.md`）
+- 待确认：RTX 5060 Ti 显存是 8GB 还是 16GB（影响 C3、C4 的规模上限）
