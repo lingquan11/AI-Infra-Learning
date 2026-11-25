@@ -8,12 +8,12 @@ From CUDA kernels to an LLM inference engine on a single RTX 5060 Ti: hand-writt
 <!-- progress:start -->
 ```
 当前战役 C1 CUDA SGEMM 阶梯优化 · 截止 2027-01-10
-  阅读 ░░░░░░░░░░░░░░░░░░░░   0%  0/8 项完成 · 已用 0h / 计划 14h
-  编程 ░░░░░░░░░░░░░░░░░░░░   0%  0/7 项完成 · 已用 0h / 计划 29.5h
+  阅读 ░░░░░░░░░░░░░░░░░░░░   0%  0/6 项完成 · 已用 0h / 计划 8.5h
+  编程 ░░░░░░░░░░░░░░░░░░░░   0%  0/6 项完成 · 已用 0h / 计划 26.5h
   动手 ░░░░░░░░░░░░░░░░░░░░   0%  0/4 项完成 · 已用 0h / 计划 5.5h
 整条路线 C0 → C5
   ░░░░░░░░░░░░░░░░░░░░   0%  0/6 个战役完成
-当前阅读 C1-R01 PMPP 第 1–3 章（可以现在就开始读）
+当前阅读 C1-R01 AIInfraGuide GPU 基础知识（可以现在就开始读）
 当前编程任务 C1-P01 第一个 CUDA 程序（依赖 C1-H01）
 当前动手任务 C1-H01 WSL2 + CUDA + ncu（可以提前做）
 最近学习 2026-11-25
@@ -23,7 +23,7 @@ From CUDA kernels to an LLM inference engine on a single RTX 5060 Ti: hand-writt
 ## 我怎么开始学习
 | 我想 | 怎么做 |
 |---|---|
-| 学理论 | 读当前战役[阅读表](start/campaigns/c1-cuda-sgemm/campaign.md)里的长文（自己读，不找 AI）；读完对 Muse 说"读完 C1-R01" |
+| 学理论（主线）+ 做练习（支线，选做） | 读 AIInfraGuide 的当前章节（见[阅读表](start/campaigns/c1-cuda-sgemm/campaign.md)，自己读，不找 AI）；配套练习在 LeetGPU 上做；读完 / 做完对 Muse 说"读完 <R编号>" / "做完 <S编号>" |
 | 写代码 | 对 GPT 说"开始写代码" … "结束" |
 | 装环境、跑实验 | 对 Muse 说"准备环境" / "做 C1-H01" |
 | 看整条路线 | [ROADMAP](start/ROADMAP.md)：C1 CUDA → C2 Triton → C3 FA2 → C4 推理引擎 → C5 分布式 |

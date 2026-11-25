@@ -4,7 +4,7 @@
 - 战役：C1 CUDA SGEMM 阶梯优化（2026-12-07 → 2027-01-10）→ [campaign.md](campaigns/c1-cuda-sgemm/campaign.md)
 
 ## 阅读（Muse 记录）
-- 当前阅读：C1-R01 PMPP 第 1–3 章（可以现在就开始读）
+- 当前阅读：C1-R01 AIInfraGuide GPU 基础知识（可以现在就开始读）
 - 下一步：读完对 Muse 说"读完 C1-R01"
 
 ## 编程（GPT 维护）
