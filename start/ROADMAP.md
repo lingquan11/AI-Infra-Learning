@@ -40,28 +40,28 @@
 ---
 
 ## C1 CUDA SGEMM 阶梯优化
-- **阅读**：Kirk & Hwu, *Programming Massively Parallel Processors*（第 4 版）第 1–6 章；Simon Boehm, [How to Optimize a CUDA Matmul Kernel](https://siboehm.com/articles/22/CUDA-MMM)；Horace He, [Making Deep Learning Go Brrrr From First Principles](https://horace.io/brrr_intro.html)；[Nsight Compute Profiling Guide](https://docs.nvidia.com/nsight-compute/ProfilingGuide/index.html)
+- **阅读**（按此顺序）：Kirk & Hwu, *Programming Massively Parallel Processors*（第 4 版）第 1–6 章；Horace He, [Making Deep Learning Go Brrrr From First Principles](https://horace.io/brrr_intro.html)；Simon Boehm, [How to Optimize a CUDA Matmul Kernel](https://siboehm.com/articles/22/CUDA-MMM)（分两段，配合 v1–v5 读）；[Nsight Compute Profiling Guide](https://docs.nvidia.com/nsight-compute/ProfilingGuide/index.html)
 - **编程**：vector add → LeetGPU 热身 → 校验与计时框架 → v1–v5 SGEMM
 - **动手**：WSL2 + CUDA + ncu → SGEMM 工程骨架 → v1–v5 测量与 ncu 剖析 → 收尾
 - **风险**：WSL2 下 ncu 拿不到计数器 → C1-H01 验证，退路是 Windows 原生工具链
 
 ## C2 Triton 与融合算子
-- **阅读**：Tillet, Kung, Cox, *Triton: An Intermediate Language and Compiler for Tiled Neural Network Computations*（[MAPL 2019](https://www.eecs.harvard.edu/~htk/publication/2019-mapl-tillet-kung-cox.pdf)）；[Triton 官方教程](https://triton-lang.org/main/getting-started/tutorials/index.html) 01–03；Milakov & Gimelshein, *Online normalizer calculation for softmax*（[arXiv:1805.02867](https://arxiv.org/abs/1805.02867)）
+- **阅读**（按此顺序）：Kirk & Hwu, PMPP 第 10 章（归约与减少分支发散，softmax 的基础）；Tillet, Kung, Cox, *Triton: An Intermediate Language and Compiler for Tiled Neural Network Computations*（[MAPL 2019](https://www.eecs.harvard.edu/~htk/publication/2019-mapl-tillet-kung-cox.pdf)）；[Triton 官方教程](https://triton-lang.org/main/getting-started/tutorials/index.html) 01–03；Milakov & Gimelshein, *Online normalizer calculation for softmax*（[arXiv:1805.02867](https://arxiv.org/abs/1805.02867)）
 - **编程**：改写 Triton vector add → 融合 softmax → 融合 RMSNorm；加分：Triton matmul 对照 C1 v5
 - **动手**：安装 PyTorch（cu128）与 Triton，验证 `sm_120`；带宽基准与作图
 
 ## C3 FlashAttention-2 Forward
-- **阅读**：Harvard NLP, [The Annotated Transformer](https://nlp.seas.harvard.edu/annotated-transformer/)（注意力部分）；Zihao Ye, [From Online Softmax to FlashAttention](https://courses.cs.washington.edu/courses/cse599m/23sp/notes/flashattn.pdf)；Dao et al., *FlashAttention*（[arXiv:2205.14135](https://arxiv.org/abs/2205.14135)）第 1–3 节；Dao, *FlashAttention-2*（[arXiv:2307.08691](https://arxiv.org/abs/2307.08691)）第 2–3 节
+- **阅读**（按此顺序）：Harvard NLP, [The Annotated Transformer](https://nlp.seas.harvard.edu/annotated-transformer/)（注意力部分）；Zihao Ye, [From Online Softmax to FlashAttention](https://courses.cs.washington.edu/courses/cse599m/23sp/notes/flashattn.pdf)；Dao et al., *FlashAttention*（[arXiv:2205.14135](https://arxiv.org/abs/2205.14135)）第 1–3 节；Dao, *FlashAttention-2*（[arXiv:2307.08691](https://arxiv.org/abs/2307.08691)）第 2–3 节
 - **编程**：PyTorch 手写注意力 → Triton FA2 forward（以 [CS336 A2](https://github.com/stanford-cs336/assignment2-systems) 的测试为验收）→ causal
 - **动手**：CS336 A2 环境；延迟与峰值显存曲线
 
 ## C4 推理引擎拆解
-- **阅读**：Kwon et al., *PagedAttention / vLLM*（[arXiv:2309.06180](https://arxiv.org/abs/2309.06180)）第 1–4 节；Anyscale, [How continuous batching enables 23x throughput](https://www.anyscale.com/blog/continuous-batching-llm-inference)；Lilian Weng, [Large Transformer Model Inference Optimization](https://lilianweng.github.io/posts/2023-01-10-inference-optimization/)；[AIInfraGuide › 推理](https://caomaolufei.github.io/AIInfraGuide/inference/) 第 3 章 nano-vllm 源码解读（中文）
+- **阅读**（按此顺序）：Lilian Weng, [Large Transformer Model Inference Optimization](https://lilianweng.github.io/posts/2023-01-10-inference-optimization/)（全景）；Anyscale, [How continuous batching enables 23x throughput](https://www.anyscale.com/blog/continuous-batching-llm-inference)；Kwon et al., *PagedAttention / vLLM*（[arXiv:2309.06180](https://arxiv.org/abs/2309.06180)）第 1–4 节；[AIInfraGuide › 推理](https://caomaolufei.github.io/AIInfraGuide/inference/) 第 3 章 nano-vllm 源码解读（中文）
 - **编程**：用自己的 FA2 替换 [nano-vllm](https://github.com/GeeeekExplorer/nano-vllm) 的 flash-attn（varlen prefill 与 paged decode）
 - **动手**：nano-vllm 环境、Qwen3-0.6B、flash-attn 在 `sm_120` 上能否安装的结论；基准与消融实验作图
 
 ## C5 分布式训练（单机模拟）
-- **阅读**：Hugging Face, [The Ultra-Scale Playbook](https://huggingface.co/spaces/nanotron/ultrascale-playbook)；Rajbhandari et al., *ZeRO*（[arXiv:1910.02054](https://arxiv.org/abs/1910.02054)）；Shoeybi et al., *Megatron-LM*（[arXiv:1909.08053](https://arxiv.org/abs/1909.08053)）；选读 [How To Scale Your Model](https://jax-ml.github.io/scaling-book/)
+- **阅读**（按此顺序）：Hugging Face, [The Ultra-Scale Playbook](https://huggingface.co/spaces/nanotron/ultrascale-playbook)；Rajbhandari et al., *ZeRO*（[arXiv:1910.02054](https://arxiv.org/abs/1910.02054)）；Shoeybi et al., *Megatron-LM*（[arXiv:1909.08053](https://arxiv.org/abs/1909.08053)）；选读 [How To Scale Your Model](https://jax-ml.github.io/scaling-book/)
 - **编程**：从零实现 DDP（梯度分桶）、ZeRO-1、TP、PP，参照 [picotron_tutorial](https://github.com/huggingface/picotron_tutorial)
 - **动手**：单机 gloo 多进程环境；记录各并行方式的显存与通信量；加分：租卡跑 `nccl-tests`
 
