@@ -40,13 +40,13 @@
 ---
 
 ## C1 CUDA SGEMM 阶梯优化
-- **阅读**（按此顺序）：Kirk & Hwu, *Programming Massively Parallel Processors*（第 4 版）第 1–6 章；Horace He, [Making Deep Learning Go Brrrr From First Principles](https://horace.io/brrr_intro.html)；Simon Boehm, [How to Optimize a CUDA Matmul Kernel](https://siboehm.com/articles/22/CUDA-MMM)（分两段，配合 v1–v5 读）；[Nsight Compute Profiling Guide](https://docs.nvidia.com/nsight-compute/ProfilingGuide/index.html)
+- **阅读**（按此顺序）：Kirk & Hwu, [*Programming Massively Parallel Processors*（第 4 版）](https://shop.elsevier.com/books/programming-massively-parallel-processors/hwu/978-0-323-91231-0)第 1–6 章；Horace He, [Making Deep Learning Go Brrrr From First Principles](https://horace.io/brrr_intro.html)；Simon Boehm, [How to Optimize a CUDA Matmul Kernel](https://siboehm.com/articles/22/CUDA-MMM)（分两段，配合 v1–v5 读）；[Nsight Compute Profiling Guide](https://docs.nvidia.com/nsight-compute/ProfilingGuide/index.html)
 - **编程**：vector add → LeetGPU 热身 → 校验与计时框架 → v1–v5 SGEMM
 - **动手**：WSL2 + CUDA + ncu → SGEMM 工程骨架 → v1–v5 测量与 ncu 剖析 → 收尾
 - **风险**：WSL2 下 ncu 拿不到计数器 → C1-H01 验证，退路是 Windows 原生工具链
 
 ## C2 Triton 与融合算子
-- **阅读**（按此顺序）：Kirk & Hwu, PMPP 第 10 章（归约与减少分支发散，softmax 的基础）；Tillet, Kung, Cox, *Triton: An Intermediate Language and Compiler for Tiled Neural Network Computations*（[MAPL 2019](https://www.eecs.harvard.edu/~htk/publication/2019-mapl-tillet-kung-cox.pdf)）；[Triton 官方教程](https://triton-lang.org/main/getting-started/tutorials/index.html) 01–03；Milakov & Gimelshein, *Online normalizer calculation for softmax*（[arXiv:1805.02867](https://arxiv.org/abs/1805.02867)）
+- **阅读**（按此顺序）：Kirk & Hwu, [PMPP](https://shop.elsevier.com/books/programming-massively-parallel-processors/hwu/978-0-323-91231-0) 第 10 章（归约与减少分支发散，softmax 的基础）；Tillet, Kung, Cox, *Triton: An Intermediate Language and Compiler for Tiled Neural Network Computations*（[MAPL 2019](https://www.eecs.harvard.edu/~htk/publication/2019-mapl-tillet-kung-cox.pdf)）；[Triton 官方教程](https://triton-lang.org/main/getting-started/tutorials/index.html) 01–03；Milakov & Gimelshein, *Online normalizer calculation for softmax*（[arXiv:1805.02867](https://arxiv.org/abs/1805.02867)）
 - **编程**：改写 Triton vector add → 融合 softmax → 融合 RMSNorm；加分：Triton matmul 对照 C1 v5
 - **动手**：安装 PyTorch（cu128）与 Triton，验证 `sm_120`；带宽基准与作图
 

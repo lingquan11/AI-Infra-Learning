@@ -9,13 +9,13 @@
 ## 阅读（我自己读，不和 AI 对话；读完对 Muse 说"读完 <ID>"；状态：未读 / 在读 / 读完）
 | ID | 长文 | 读哪些部分 | 预计用时 | 读完应该能回答（自测，不考核） | 状态 |
 |---|---|---|---:|---|---|
-| C1-R01 | Kirk & Hwu, *Programming Massively Parallel Processors*（第 4 版） | 第 1–3 章：异构计算、数据并行、多维网格与数据 | 3h | grid / block / thread 怎样映射到数据？全局下标怎么算？为什么要边界检查？ | 未读 |
-| C1-R02 | 同上 | 第 4 章：计算架构与调度 | 2h | SM、warp、延迟隐藏、占用率分别是什么？GPU 为什么用更多线程而不是更大缓存来隐藏延迟？ | 未读 |
-| C1-R03 | 同上 | 第 5 章：存储架构与数据局部性 | 2.5h | 共享内存分块把全局内存访问减少到几分之一？和 CPU 缓存分块有何异同？ | 未读 |
-| C1-R04 | 同上 | 第 6 章：性能考量 | 2h | 合并访问的条件是什么？线程粗化为什么能提高性能？ | 未读 |
+| C1-R01 | Kirk, Hwu & El Hajj, [*Programming Massively Parallel Processors*（第 4 版）](https://shop.elsevier.com/books/programming-massively-parallel-processors/hwu/978-0-323-91231-0) | 第 1–3 章：异构计算、数据并行、多维网格与数据 | 3h | grid / block / thread 怎样映射到数据？全局下标怎么算？为什么要边界检查？ | 未读 |
+| C1-R02 | [PMPP 第 4 版](https://shop.elsevier.com/books/programming-massively-parallel-processors/hwu/978-0-323-91231-0)（同上） | 第 4 章：计算架构与调度 | 2h | SM、warp、延迟隐藏、占用率分别是什么？GPU 为什么用更多线程而不是更大缓存来隐藏延迟？ | 未读 |
+| C1-R03 | [PMPP 第 4 版](https://shop.elsevier.com/books/programming-massively-parallel-processors/hwu/978-0-323-91231-0)（同上） | 第 5 章：存储架构与数据局部性 | 2.5h | 共享内存分块把全局内存访问减少到几分之一？和 CPU 缓存分块有何异同？ | 未读 |
+| C1-R04 | [PMPP 第 4 版](https://shop.elsevier.com/books/programming-massively-parallel-processors/hwu/978-0-323-91231-0)（同上） | 第 6 章：性能考量 | 2h | 合并访问的条件是什么？线程粗化为什么能提高性能？ | 未读 |
 | C1-R05 | Horace He, [Making Deep Learning Go Brrrr From First Principles](https://horace.io/brrr_intro.html) | 全文 | 1h | 计算受限、带宽受限、开销受限分别怎样判断？GFLOPS 和带宽利用率各说明什么？ | 未读 |
 | C1-R06 | Simon Boehm, [How to Optimize a CUDA Matmul Kernel for cuBLAS-like Performance](https://siboehm.com/articles/22/CUDA-MMM) | 开头到 Kernel 3（Naive、全局内存合并、共享内存分块） | 1h | Naive 版慢在哪里？合并访问改了线程到元素的什么映射？共享内存分块减少了哪部分访存？ | 未读 |
-| C1-R07 | 同上 | Kernel 4–5（1D / 2D Blocktiling）；Kernel 6 起留给加分 | 1h | 每个线程算多个结果为什么能提高算术强度？寄存器用量上升会带来什么代价？ | 未读 |
+| C1-R07 | Simon Boehm, [How to Optimize a CUDA Matmul Kernel](https://siboehm.com/articles/22/CUDA-MMM)（同上） | Kernel 4–5（1D / 2D Blocktiling）；Kernel 6 起留给加分 | 1h | 每个线程算多个结果为什么能提高算术强度？寄存器用量上升会带来什么代价？ | 未读 |
 | C1-R08 | NVIDIA, [Nsight Compute Profiling Guide](https://docs.nvidia.com/nsight-compute/ProfilingGuide/index.html) | 指标结构、Speed of Light、Warp Stall Reasons 相关小节 | 1.5h | Compute SOL 和 Memory SOL 各衡量什么？哪些 stall reason 说明在等访存？ | 未读 |
 
 没有 PMPP 纸质书时，R01–R04 用 [CUDA Programming Guide](https://docs.nvidia.com/cuda/cuda-programming-guide/) 中编程模型、硬件实现、性能指南的对应部分代替（在阅读记录中注明）。
