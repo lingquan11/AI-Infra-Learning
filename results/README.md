@@ -8,7 +8,7 @@
 
 | 目录 | 内容 | 战役 |
 |---|---|---|
-| `env-check/`、`hw/` | 环境自检程序、RTX 5060 Ti 硬件事实（工具读数） | C1-T01 |
+| `env-check/`、`hw/` | 环境自检程序、RTX 5060 Ti 硬件事实（工具读数） | C1-H01 / C1-P01 |
 | `sgemm/` | v1–v5 对比 cuBLAS 的阶梯表 + ncu 剖析 | C1 |
 | `triton-kernels/` | Fused Softmax / RMSNorm + 带宽对比 | C2 |
 | `flash-attn-fwd/` | FlashAttention-2 forward（Triton） | C3 |
